@@ -110,7 +110,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                     // Opened on purpose counts for the Space it was opened on.
                     if name == NSWorkspace.activeSpaceDidChangeNotification { self?.openedOnPurpose = false }
                     self?.refresh()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { self?.refresh() }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        self?.refresh()
+                        self?.keepOnActiveSpace()
+                    }
                 }
             }
         }
@@ -380,6 +383,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
+    /// The line is one window on every Space. After a long time running,
+    /// macOS can leave it bound to a single Space, where ordering it in does
+    /// nothing on the others while captures keep arriving (#80). Quitting and
+    /// opening the app again fixes it because the window is new, so do the
+    /// same here: a fresh window with the same contents, in the same place.
+    private func keepOnActiveSpace() {
+        guard isPresent, isRevealed, panel.isVisible, !panel.isOnActiveSpace else { return }
+        log.notice("The line was not on the active Space; making its window again")
+        let old = panel!
+        let content = old.contentView
+        old.contentView = NSView()
+        old.orderOut(nil)
+        let fresh = LinePanel(content: content ?? NSView())
+        fresh.onScroll = old.onScroll
+        fresh.setFrame(old.frame, display: false)
+        fresh.ignoresMouseEvents = old.ignoresMouseEvents
+        fresh.alphaValue = old.alphaValue
+        panel = fresh
+        fresh.orderFrontRegardless()
+    }
+
     private func reveal(pinned: Bool = false, peekFor seconds: TimeInterval = 0) {
         guard isPresent else { return }
         if pinned { self.pinned = true }
@@ -398,7 +422,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // over the top of the screen would still sit above other apps for
         // anything that checks what is on top, like screen automation.
         if on {
-            if isPresent { panel.orderFrontRegardless() }
+            if isPresent {
+                panel.orderFrontRegardless()
+                DispatchQueue.main.async { [weak self] in self?.keepOnActiveSpace() }
+            }
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 guard let self, !self.isRevealed else { return }
