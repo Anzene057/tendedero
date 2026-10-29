@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../images/ja/hero-dark.png">
-  <img src="../images/ja/hero-light.png" alt="Tendedero。スクリーンショットを、物干しに。ガラスのフレームに入った4枚のスクリーンショットが、細いロープに吊るされている。">
+  <img src="../images/ja/hero-light.png" alt="Tendedero。スクリーンショットを、物干しに。ガラスのフレームに入った3枚のスクリーンショットが、macOSのメニューバーの下の細いロープに吊るされている。">
 </picture>
 
 <h3 align="center"><a href="https://tendedero.app/?lang=ja">tendedero.appでブラウザから試す&nbsp;&rsaquo;</a></h3>

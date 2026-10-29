@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../images/pt-BR/hero-dark.png">
-  <img src="../images/pt-BR/hero-light.png" alt="Tendedero. Suas capturas, secando no varal. Quatro capturas em molduras de vidro penduradas num varal fino.">
+  <img src="../images/pt-BR/hero-light.png" alt="Tendedero. Suas capturas, secando no varal. Três capturas em molduras de vidro penduradas num varal fino sob a barra de menus do macOS.">
 </picture>
 
 <h3 align="center"><a href="https://tendedero.app/?lang=pt-BR">Experimente no navegador em tendedero.app&nbsp;&rsaquo;</a></h3>

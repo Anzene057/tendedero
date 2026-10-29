@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../images/tr/hero-dark.png">
-  <img src="../images/tr/hero-light.png" alt="Tendedero. Ekran görüntüleri, ipin üzerinde. İnce bir ipten sallanan cam çerçeveli dört ekran görüntüsü.">
+  <img src="../images/tr/hero-light.png" alt="Tendedero. Ekran görüntüleri, ipin üzerinde. macOS menü çubuğunun altında ince bir ipten sallanan cam çerçeveli üç ekran görüntüsü.">
 </picture>
 
 <h3 align="center"><a href="https://tendedero.app">tendedero.app adresinde tarayıcıdan deneyin&nbsp;&rsaquo;</a></h3>
