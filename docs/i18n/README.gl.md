@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../images/gl/hero-dark.png">
-  <img src="../images/gl/hero-light.png" alt="Tendedero. As túas capturas, tendidas. Tres capturas en marcos de cristal penduran dunha corda fina baixo a barra de menús de macOS.">
+  <img src="../images/gl/hero-light.png" alt="Tendedero. As túas capturas, tendidas. Catro capturas en marcos de cristal penduran dunha corda fina.">
 </picture>
 
 <h3 align="center"><a href="https://tendedero.app/?lang=gl">Próbaa dende o navegador en tendedero.app&nbsp;&rsaquo;</a></h3>

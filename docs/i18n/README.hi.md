@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../images/hi/hero-dark.png">
-  <img src="../images/hi/hero-light.png" alt="Tendedero. स्क्रीनशॉट, रस्सी पर सूखते हुए। macOS मेनू बार के नीचे एक पतली रस्सी से काँच के फ़्रेम में तीन स्क्रीनशॉट टँगे हैं।">
+  <img src="../images/hi/hero-light.png" alt="Tendedero. स्क्रीनशॉट, रस्सी पर सूखते हुए। एक पतली रस्सी से काँच के फ़्रेम में चार स्क्रीनशॉट टँगे हैं।">
 </picture>
 
 <h3 align="center"><a href="https://tendedero.app">tendedero.app पर अपने ब्राउज़र में आज़माएँ&nbsp;&rsaquo;</a></h3>

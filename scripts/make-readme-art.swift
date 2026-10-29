@@ -356,16 +356,16 @@ func drawGlassPhoto(_ ctx: CGContext, _ t: Theme, w: CGFloat, h: CGFloat, kind: 
 func drawContent(_ kind: Int, _ r: NSRect) {
     switch kind {
     case 0:
-        color(250, 250, 252).setFill(); r.fill()
+        (darkWindows ? color(38, 37, 44) : color(250, 250, 252)).setFill(); r.fill()
         let bar = NSRect(x: r.minX, y: r.maxY - 20, width: r.width, height: 20)
-        color(236, 237, 242).setFill(); bar.fill()
+        (darkWindows ? color(45, 44, 52) : color(236, 237, 242)).setFill(); bar.fill()
         for (i, c) in [color(255, 95, 87), color(254, 188, 46), color(40, 200, 64)].enumerated() {
             c.setFill()
             NSBezierPath(ovalIn: NSRect(x: r.minX + 8 + CGFloat(i) * 11, y: bar.midY - 3, width: 6.5, height: 6.5)).fill()
         }
         color(98, 120, 255).setFill()
         NSBezierPath(roundedRect: NSRect(x: r.minX + 12, y: bar.minY - 24, width: r.width * 0.45, height: 9), xRadius: 3, yRadius: 3).fill()
-        color(214, 217, 226).setFill()
+        (darkWindows ? color(255, 255, 255, 0.14) : color(214, 217, 226)).setFill()
         for i in 0..<6 {
             let y = bar.minY - 42 - CGFloat(i) * 14
             if y < r.minY + 8 { break }
@@ -384,6 +384,45 @@ func drawContent(_ kind: Int, _ r: NSRect) {
                     controlPoint2: NSPoint(x: r.minX + r.width * 0.62, y: r.minY + r.height * 0.05))
         hills.line(to: NSPoint(x: r.maxX, y: r.minY)); hills.line(to: NSPoint(x: r.minX, y: r.minY)); hills.close()
         color(66, 48, 128).setFill(); hills.fill()
+    case 3:
+        // A week of screenshots: three figures and a line that climbs.
+        (darkWindows ? color(38, 37, 44) : color(251, 251, 253)).setFill(); r.fill()
+        let tw = (r.width - 32) / 3
+        for i in 0..<3 {
+            let tile = NSRect(x: r.minX + 10 + CGFloat(i) * (tw + 6), y: r.maxY - 40, width: tw, height: 30)
+            (darkWindows ? color(48, 47, 56) : color(241, 241, 245)).setFill()
+            NSBezierPath(roundedRect: tile, xRadius: 6, yRadius: 6).fill()
+            (darkWindows ? color(255, 255, 255, 0.25) : color(212, 212, 218)).setFill()
+            NSBezierPath(roundedRect: NSRect(x: tile.minX + 6, y: tile.maxY - 11, width: tw * 0.55, height: 5), xRadius: 2.5, yRadius: 2.5).fill()
+            (darkWindows ? color(245, 245, 247) : color(22, 21, 29)).setFill()
+            NSBezierPath(roundedRect: NSRect(x: tile.minX + 6, y: tile.minY + 6, width: tw * 0.36, height: 7), xRadius: 3, yRadius: 3).fill()
+        }
+        let pts: [CGFloat] = [0.28, 0.34, 0.26, 0.38, 0.42, 0.4, 0.62, 0.92]
+        let curve = NSBezierPath()
+        for (i, v) in pts.enumerated() {
+            let p = NSPoint(x: r.minX + r.width * CGFloat(i) / CGFloat(pts.count - 1), y: r.minY + 8 + (r.height - 62) * v)
+            i == 0 ? curve.move(to: p) : curve.line(to: p)
+        }
+        let area = curve.copy() as! NSBezierPath
+        area.line(to: NSPoint(x: r.maxX, y: r.minY)); area.line(to: NSPoint(x: r.minX, y: r.minY)); area.close()
+        NSGradient(colors: [color(92, 198, 255, 0.38), color(169, 139, 255, 0)])!.draw(in: area, angle: -90)
+        curve.lineWidth = 2.5; curve.lineJoinStyle = .round
+        color(130, 160, 255).setStroke(); curve.stroke()
+    case 4:
+        // A chat: bubbles in and out.
+        (darkWindows ? color(38, 37, 44) : color(251, 251, 253)).setFill(); r.fill()
+        let bar = NSRect(x: r.minX, y: r.maxY - 20, width: r.width, height: 20)
+        (darkWindows ? color(45, 44, 52) : color(244, 244, 247)).setFill(); bar.fill()
+        for (i, c) in [color(255, 95, 87), color(254, 188, 46), color(40, 200, 64)].enumerated() {
+            c.setFill()
+            NSBezierPath(ovalIn: NSRect(x: r.minX + 8 + CGFloat(i) * 11, y: bar.midY - 3, width: 6.5, height: 6.5)).fill()
+        }
+        for (i, (w, out)) in [(0.6, false), (0.52, true), (0.46, false), (0.4, true)].enumerated() {
+            let bw = r.width * w, y = bar.minY - 26 - CGFloat(i) * 27
+            let b = NSRect(x: out ? r.maxX - 12 - bw : r.minX + 12, y: y, width: bw, height: 18)
+            (out ? color(52, 199, 89) : (darkWindows ? color(58, 57, 66) : color(233, 233, 238))).setFill()
+            NSBezierPath(roundedRect: b, xRadius: 9, yRadius: 9).fill()
+        }
     default:
         color(24, 26, 36).setFill(); r.fill()
         let bars: [CGFloat] = [0.35, 0.55, 0.42, 0.7, 0.6, 0.85, 0.74]
@@ -431,24 +470,110 @@ func drawCursor(_ ctx: CGContext, _ t: Theme, at p: NSPoint) {
 
 // MARK: Hero
 
+// The hero wears the website's colours: a desk lit by soft glows over a faint
+// grid, four photos on a line, and the tagline in the title's gradient.
+struct Glow { let x: CGFloat; let y: CGFloat; let rx: CGFloat; let ry: CGFloat; let color: NSColor; let alpha: CGFloat }
+struct Look { let wall: NSColor; let grid: NSColor; let glows: [Glow]; let title: [NSColor] }
+
+let looks: [String: Look] = [
+    "light": Look(wall: color(255, 255, 255), grid: color(90, 90, 140, 0.06), glows: [
+        Glow(x: 0.08, y: 0.55, rx: 0.2, ry: 0.42, color: color(92, 198, 255), alpha: 0.58),
+        Glow(x: 0.36, y: 0.42, rx: 0.24, ry: 0.3, color: color(169, 139, 255), alpha: 0.42),
+        Glow(x: 0.6, y: 0.5, rx: 0.24, ry: 0.28, color: color(255, 143, 208), alpha: 0.42),
+        Glow(x: 0.93, y: 0.6, rx: 0.2, ry: 0.42, color: color(255, 179, 107), alpha: 0.52),
+    ], title: [color(157, 75, 255), color(228, 91, 208), color(255, 138, 91)]),
+    "dark": Look(wall: color(11, 11, 16), grid: color(255, 255, 255, 0.035), glows: [
+        Glow(x: 0.08, y: 0.55, rx: 0.2, ry: 0.42, color: color(47, 143, 216), alpha: 0.4),
+        Glow(x: 0.36, y: 0.42, rx: 0.24, ry: 0.3, color: color(122, 82, 224), alpha: 0.34),
+        Glow(x: 0.6, y: 0.5, rx: 0.24, ry: 0.28, color: color(209, 79, 159), alpha: 0.3),
+        Glow(x: 0.93, y: 0.6, rx: 0.2, ry: 0.42, color: color(217, 128, 58), alpha: 0.32),
+    ], title: [color(181, 123, 255), color(240, 112, 216), color(255, 160, 112)]),
+]
+
+/// Windows in the hero follow the theme; the demo keeps its light ones.
+var darkWindows = false
+
+/// Text filled with a horizontal gradient, through a mask of the glyphs.
+func gradientText(_ string: String, size: CGFloat, weight: NSFont.Weight, colors: [NSColor], tracking: CGFloat,
+                  centerX: CGFloat, baselineY: CGFloat, canvas: NSSize, scale: CGFloat, ctx: CGContext) {
+    let font = NSFont.systemFont(ofSize: size, weight: weight)
+    let s = NSAttributedString(string: string, attributes: [.font: font, .foregroundColor: NSColor.white, .kern: tracking])
+    let w = s.size().width
+    let mask = CGContext(data: nil, width: Int(canvas.width * scale), height: Int(canvas.height * scale), bitsPerComponent: 8,
+                         bytesPerRow: 0, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+    mask.scaleBy(x: scale, y: scale)
+    NSGraphicsContext.saveGraphicsState()
+    NSGraphicsContext.current = NSGraphicsContext(cgContext: mask, flipped: false)
+    s.draw(at: NSPoint(x: centerX - w / 2, y: baselineY + font.descender))
+    NSGraphicsContext.restoreGraphicsState()
+    ctx.saveGState()
+    ctx.clip(to: NSRect(origin: .zero, size: canvas), mask: mask.makeImage()!)
+    NSGradient(colors: colors, atLocations: [0, 0.55, 1], colorSpace: .sRGB)!
+        .draw(in: NSRect(x: centerX - w / 2, y: baselineY - size * 0.4, width: w, height: size * 1.4), angle: 0)
+    ctx.restoreGState()
+}
+
 func hero(_ t: Theme) {
     let W: CGFloat = 1200, H: CGFloat = 640, s: CGFloat = 2
+    let look = looks[t.name]!
     let rep = makeBitmap(W, H, scale: s)
     draw(rep, scale: s) { ctx in
-        t.page.setFill(); NSRect(x: 0, y: 0, width: W, height: H).fill()
-        text("Tendedero", size: 84, weight: .semibold, color: t.ink, tracking: -2.4, centerX: W / 2, baselineY: H - 128)
-        text(T("Screenshots, hung out to dry."), size: 30, weight: .regular, color: t.secondaryInk,
-             tracking: -0.4, centerX: W / 2, baselineY: H - 182)
-        let frames = [Frame(x: 290, w: 250, h: 172, tilt: 2.5, kind: 0),
-                      Frame(x: 560, w: 270, h: 186, tilt: -1.2, kind: 1),
-                      Frame(x: 830, w: 220, h: 160, tilt: 3, kind: 2)]
-        let scene = NSRect(x: 60, y: 40, width: W - 120, height: 330)
-        ctx.saveGState(); shadow(t, 0.6, blur: 40, y: -18)
-        t.page.setFill(); NSBezierPath(roundedRect: scene, xRadius: 26, yRadius: 26).fill()
+        let canvas = NSRect(x: 0, y: 0, width: W, height: H)
+        t.page.setFill(); canvas.fill()
+        NSBezierPath(roundedRect: canvas, xRadius: 28, yRadius: 28).addClip()
+        look.wall.setFill(); canvas.fill()
+
+        // The grid fades out behind the words, as on the website.
+        ctx.beginTransparencyLayer(auxiliaryInfo: nil)
+        look.grid.setStroke()
+        let cell: CGFloat = 32
+        let grid = NSBezierPath(); grid.lineWidth = 1
+        for x in stride(from: cell, to: W, by: cell) { grid.move(to: NSPoint(x: x, y: 0)); grid.line(to: NSPoint(x: x, y: H)) }
+        for y in stride(from: H - cell, to: 0, by: -cell) { grid.move(to: NSPoint(x: 0, y: y)); grid.line(to: NSPoint(x: W, y: y)) }
+        grid.stroke()
+        ctx.setBlendMode(.destinationOut)
+        ctx.saveGState()
+        ctx.translateBy(x: W / 2, y: H * 0.45); ctx.scaleBy(x: W * 0.6, y: H * 0.6)
+        NSGradient(colors: [.black, .black, .clear, color(0, 0, 0, 0.6)], atLocations: [0, 0.25, 0.75, 1], colorSpace: .sRGB)!
+            .draw(fromCenter: .zero, radius: 0, toCenter: .zero, radius: 1, options: [.drawsAfterEndingLocation])
         ctx.restoreGState()
-        drawScene(ctx, t, rect: scene,
-                  frames: frames.map { Frame(x: $0.x - 60 + 60, w: $0.w, h: $0.h, tilt: $0.tilt, kind: $0.kind) },
-                  state: SceneState(cursor: NSPoint(x: 690, y: 330)), cornerRadius: 26)
+        ctx.endTransparencyLayer()
+
+        for g in look.glows {
+            ctx.saveGState()
+            ctx.translateBy(x: W * g.x, y: H * (1 - g.y)); ctx.scaleBy(x: max(W * g.rx, 220), y: H * g.ry)
+            NSGradient(colors: [g.color.withAlphaComponent(g.alpha), g.color.withAlphaComponent(g.alpha * 0.45), g.color.withAlphaComponent(0)],
+                       atLocations: [0, 0.55, 1], colorSpace: .sRGB)!
+                .draw(fromCenter: .zero, radius: 0, toCenter: .zero, radius: 1, options: [])
+            ctx.restoreGState()
+        }
+
+        let top = H - 92, sag: CGFloat = 60
+        func lineY(_ x: CGFloat) -> CGFloat { let f = (x + 20) / (W + 40); return top - 4 * sag * f * (1 - f) }
+        let line = NSBezierPath()
+        line.move(to: NSPoint(x: -20, y: top))
+        line.curve(to: NSPoint(x: W + 20, y: top), controlPoint1: NSPoint(x: (W / 2 - 20) * 2 / 3 - 20 / 3, y: top - 2 * sag * 2 / 3),
+                   controlPoint2: NSPoint(x: W + 20 - (W / 2 + 20) * 2 / 3, y: top - 2 * sag * 2 / 3))
+        ctx.saveGState(); shadow(t, 0.8, blur: 3, y: -2)
+        line.lineWidth = 2; t.line.setStroke(); line.stroke()
+        ctx.restoreGState()
+
+        darkWindows = t.name == "dark"
+        for f in [Frame(x: 200, w: 216, h: 150, tilt: 4, kind: 0), Frame(x: 466, w: 216, h: 150, tilt: -1.5, kind: 1),
+                  Frame(x: 734, w: 216, h: 150, tilt: 1.5, kind: 3), Frame(x: 1000, w: 216, h: 150, tilt: -4, kind: 4)] {
+            ctx.saveGState()
+            ctx.translateBy(x: f.x, y: lineY(f.x) + 7)
+            ctx.rotate(by: f.tilt * .pi / 180)
+            drawGlassPhoto(ctx, t, w: f.w, h: f.h, kind: f.kind, lift: false)
+            ctx.restoreGState()
+        }
+        darkWindows = false
+
+        text("Tendedero", size: 118, weight: .bold, color: t.ink, tracking: -3.6, centerX: W / 2, baselineY: 158)
+        let tagline = T("Screenshots, hung out to dry.")
+        let size = min(44, 44 * 1080 / textWidth(tagline, size: 44, weight: .bold))
+        gradientText(tagline, size: size, weight: .bold, colors: look.title, tracking: -1.1,
+                     centerX: W / 2, baselineY: 74, canvas: canvas.size, scale: s, ctx: ctx)
     }
     savePNG(rep, "\(outDir)/hero-\(t.name).png")
 }

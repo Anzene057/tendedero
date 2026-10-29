@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../images/ko/hero-dark.png">
-  <img src="../images/ko/hero-light.png" alt="Tendedero. 빨랫줄에 널어 둔 스크린샷. 유리 액자에 담긴 스크린샷 세 장이 macOS 메뉴 막대 아래의 가는 줄에 걸려 있어요.">
+  <img src="../images/ko/hero-light.png" alt="Tendedero. 빨랫줄에 널어 둔 스크린샷. 유리 액자에 담긴 스크린샷 네 장이 가는 줄에 걸려 있어요.">
 </picture>
 
 <h3 align="center"><a href="https://tendedero.app/?lang=ko">tendedero.app에서 브라우저로 바로 사용해 보세요&nbsp;&rsaquo;</a></h3>
