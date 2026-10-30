@@ -157,18 +157,36 @@ final class Line: ObservableObject {
 
     func copy(_ id: UUID) {
         guard let item = items.first(where: { $0.id == id }) else { return }
-        let entry = NSPasteboardItem()
-        // A recording is copied as the file, which apps paste as the video.
-        if !item.isRecording, let png = pngData(item.url) { entry.setData(png, forType: .png) }
-        entry.setString(item.url.absoluteString, forType: .fileURL)
-        let pb = NSPasteboard.general
-        pb.clearContents()
-        pb.writeObjects([entry])
+        putOnClipboard(item.url)
 
         copiedID = id
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
             if self?.copiedID == id { self?.copiedID = nil }
         }
+    }
+
+    /// The file last put on the clipboard, and the clipboard's change count
+    /// right after. While the count is the same, nothing else has been copied.
+    private var onClipboard: (url: URL, change: Int)?
+
+    private func putOnClipboard(_ url: URL) {
+        let entry = NSPasteboardItem()
+        // A recording is copied as the file, which apps paste as the video.
+        if !isRecording(url), let png = pngData(url) { entry.setData(png, forType: .png) }
+        entry.setString(url.absoluteString, forType: .fileURL)
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.writeObjects([entry])
+        onClipboard = (url, pb.changeCount)
+    }
+
+    /// Apps like Finder or a chat window paste the copied file rather than the
+    /// picture. When the file moves after a copy, to the Trash or the Desktop,
+    /// the clipboard follows it, or those apps would find nothing to paste.
+    private func clipboardFollows(_ url: URL, to moved: URL) {
+        guard let onClipboard, onClipboard.url == url,
+              onClipboard.change == NSPasteboard.general.changeCount else { return }
+        putOnClipboard(moved)
     }
 
     func open(_ id: UUID) {
@@ -189,6 +207,7 @@ final class Line: ObservableObject {
         do {
             var trashed: NSURL?
             try FileManager.default.trashItem(at: item.url, resultingItemURL: &trashed)
+            if let trashed { clipboardFollows(item.url, to: trashed as URL) }
             log.notice("Trashed \(item.url.lastPathComponent, privacy: .public)")
             if soundOn && !quietly { Line.trashSound?.play() }
             drop(id, quietly: true)
@@ -256,6 +275,7 @@ final class Line: ObservableObject {
         let target = uniqueURL(in: desktop, for: item.url.lastPathComponent)
         do {
             try FileManager.default.moveItem(at: item.url, to: target)
+            clipboardFollows(item.url, to: target)
             drop(id, quietly: true)
         } catch {
             log.error("Could not save to Desktop: \(error.localizedDescription, privacy: .public)")
@@ -378,6 +398,7 @@ final class Line: ObservableObject {
         let url = uniqueURL(in: photo.url.deletingLastPathComponent(), for: photo.url.lastPathComponent)
         do {
             try FileManager.default.moveItem(at: trashed, to: url)
+            clipboardFollows(trashed, to: url)
             log.notice("Put back \(url.lastPathComponent, privacy: .public)")
             return url
         } catch {
